@@ -1,0 +1,1042 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>ติวสอบ ISA</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Mali:wght@500&display=swap" rel="stylesheet">
+<style>
+/* Concept: สมุดโน้ตกระดาษกราฟ — หมึกกรมท่าเป็นตัวหลัก ปากกาแดงสำหรับ "จำ!!" ปากกาเน้นข้อความสีเหลืองบอกจุดที่กำลังดู */
+:root{
+  --paper:#f4f8fc; --surface:#ffffff; --ink:#142040; --ink2:#53617f; --line:#d2dcee; --grid:rgba(52,92,170,.09);
+  --blue:#2450d6; --blue-soft:#e4ebff; --on-blue:#ffffff;
+  --red:#cf2b39; --red-soft:#ffe8ea;
+  --ok:#12805a; --ok-soft:#d9f4e8;
+  --hl:#ffe97a; --hl-soft:#fff6c4;
+  --f-display:'Bai Jamjuree','IBM Plex Sans Thai','Noto Sans Thai',system-ui,sans-serif;
+  --f-body:'IBM Plex Sans Thai','Noto Sans Thai',system-ui,sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+  --f-pen:'Mali','Noto Sans Thai',cursive;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0e1526; --surface:#162038; --ink:#e7edfb; --ink2:#9eacca; --line:#2a3757; --grid:rgba(130,160,230,.08);
+    --blue:#86a3ff; --blue-soft:#1f2c55; --on-blue:#0b1226;
+    --red:#ff7f8a; --red-soft:#40222b;
+    --ok:#4fd6a0; --ok-soft:#14372e;
+    --hl:rgba(255,212,64,.38); --hl-soft:rgba(255,212,64,.14);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0e1526; --surface:#162038; --ink:#e7edfb; --ink2:#9eacca; --line:#2a3757; --grid:rgba(130,160,230,.08);
+  --blue:#86a3ff; --blue-soft:#1f2c55; --on-blue:#0b1226;
+  --red:#ff7f8a; --red-soft:#40222b;
+  --ok:#4fd6a0; --ok-soft:#14372e;
+  --hl:rgba(255,212,64,.38); --hl-soft:rgba(255,212,64,.14);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;
+  color:var(--ink); font:15px/1.7 var(--f-body); min-height:100%;
+}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--paper)}
+.wrap{max-width:980px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-display);line-height:1.25;text-wrap:balance;margin:0}
+p{margin:0}
+.mono{font-family:var(--f-mono)}
+.muted{color:var(--ink2)}
+
+header .wrap{padding-block:28px 14px}
+.eyebrow{font:600 12px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+h1{font-size:clamp(28px,6vw,46px);font-weight:700;margin-top:6px}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;align-items:center}
+.tag{font:500 12.5px var(--f-mono);padding:3px 10px;border:1.5px solid var(--ink);border-radius:999px;background:var(--surface)}
+.pen{font-family:var(--f-pen);color:var(--red);font-weight:500}
+.jam{display:inline-block;font-family:var(--f-pen);color:var(--red);border:2px solid var(--red);border-radius:999px;padding:0 14px;transform:rotate(-3deg);font-size:15px;line-height:1.7}
+
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;background:var(--paper);border-bottom:1.5px solid var(--ink)}
+nav .wrap{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+nav .wrap::-webkit-scrollbar{display:none}
+nav a{flex:none;padding:11px 12px 9px;font:600 14.5px var(--f-display);color:var(--ink2);text-decoration:none;white-space:nowrap}
+nav a:hover{color:var(--ink)}
+nav a[aria-current="page"]{color:var(--ink);background:linear-gradient(transparent 52%,var(--hl) 52%)}
+nav a:focus-visible,.btn:focus-visible,.chip:focus-visible,input:focus-visible,.opt:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+
+main .wrap{padding-block:26px 56px}
+.view{display:flex;flex-direction:column;gap:18px}
+.view[hidden]{display:none}
+h2{font-size:clamp(22px,4.4vw,30px);font-weight:700;display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+.qno{font:600 13px var(--f-mono);background:var(--ink);color:var(--paper);padding:2px 10px;border-radius:4px;letter-spacing:.04em}
+h3{font-size:18px;font-weight:600}
+.lead{color:var(--ink2);max-width:66ch}
+
+.card{background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.card.plain{background:transparent;border-style:dashed;border-color:var(--ink2)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+label,.lbl{font:600 13px var(--f-body);color:var(--ink2)}
+input[type=text],input[type=number]{font:500 16px var(--f-mono);color:var(--ink);background:var(--paper);border:1.5px solid var(--ink2);border-radius:6px;padding:8px 10px;min-width:0;width:100%}
+input.sm{width:auto;padding:6px 8px;font-size:14px}
+.btn{font:600 14px var(--f-body);padding:8px 14px;border:1.5px solid var(--ink);background:var(--surface);color:var(--ink);border-radius:6px;cursor:pointer}
+.btn:hover:not(:disabled){background:var(--hl-soft)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.pri{background:var(--blue);border-color:var(--blue);color:var(--on-blue)}
+.btn.pri:hover:not(:disabled){background:var(--blue);filter:brightness(1.1)}
+.chip{font:500 13px var(--f-mono);padding:4px 10px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);border-radius:999px;cursor:pointer}
+.chip:hover{border-color:var(--ink);background:var(--hl-soft)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.err{color:var(--red);background:var(--red-soft);padding:8px 12px;border-radius:6px;font-weight:500}
+.ok{color:var(--ok);background:var(--ok-soft);padding:8px 12px;border-radius:6px;font-weight:500}
+.scroll{overflow-x:auto;max-width:100%}
+
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{font:600 12px var(--f-mono);letter-spacing:.05em;text-transform:uppercase;text-align:left;color:var(--ink2);padding:8px 10px;border-bottom:1.5px solid var(--ink)}
+td{padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+td.mono{font-size:14.5px}
+tr.cur td{background:var(--hl-soft)}
+tr.why td{font-size:13px;color:var(--ink2);padding-top:0;padding-bottom:9px}
+tr.main td{border-bottom:none;padding-bottom:2px}
+.sc{display:inline-block;font:600 14px var(--f-mono);min-width:26px;text-align:center;padding:1px 7px;margin-right:4px;border:1.5px solid var(--ink);border-radius:4px;background:var(--surface)}
+.sc.top{background:var(--blue);border-color:var(--blue);color:var(--on-blue)}
+.result{font:600 clamp(20px,5vw,28px) var(--f-mono);word-break:break-all}
+.result b{background:linear-gradient(transparent 55%,var(--hl) 55%);font-weight:600}
+
+.rules ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px}
+.rules li::marker{font-family:var(--f-pen);color:var(--red)}
+.prec{max-width:420px}
+
+.regs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.reg{border:1.5px solid var(--ink);border-radius:8px;padding:8px 10px;background:var(--surface);min-width:0}
+.reg span{display:block;font:600 12px var(--f-mono);color:var(--ink2);letter-spacing:.06em}
+.reg b{font:600 clamp(18px,5vw,26px) var(--f-mono);display:block;overflow-wrap:anywhere}
+.reg .op{color:var(--blue)}.reg .ad{color:var(--red)}
+.hint{min-height:3.4em;padding:10px 12px;border-radius:6px;background:var(--hl-soft);font-size:14px}
+tr.pcrow td{background:var(--blue-soft)}
+tr.flash td{animation:flash 1.2s ease-out}
+@keyframes flash{from{background:var(--hl)}to{background:transparent}}
+.setup-row{display:grid;grid-template-columns:90px 1fr;gap:8px;margin-bottom:6px}
+
+.setup-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:6px 14px}
+.setup-row{margin-bottom:0}
+.setup-top{display:flex;gap:10px;align-items:center}
+.setup-top input{width:90px}
+.panels{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:0;border-top:1.5px solid var(--ink);border-left:1.5px solid var(--ink)}
+.pnl{background:var(--surface);border-right:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink);padding:12px 12px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.ph{display:flex;align-items:center;gap:8px}
+.pn{width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--paper);font:700 14px var(--f-display);display:flex;align-items:center;justify-content:center;flex:none}
+.ptag{font:600 12px var(--f-mono);letter-spacing:.05em;color:var(--ink2)}
+.pnl svg{width:100%;max-width:400px;height:auto;display:block;margin-inline:auto}
+.pcap{font-size:14px;line-height:1.7}
+.pcap .rd{color:var(--red);text-decoration:underline;text-underline-offset:3px}
+.pcap .dim{color:var(--ink2)}
+svg text{font-family:var(--f-mono);font-size:14px;fill:var(--ink)}
+svg .cell{fill:var(--surface);stroke:var(--ink);stroke-width:1.5}
+svg .cell.chg{fill:var(--hl)}
+svg .cell.pcb{stroke-width:3}
+svg .addr{fill:var(--blue);font-size:13px;text-anchor:end}
+svg .ttl{font-family:var(--f-body);font-weight:600;font-size:12px;fill:var(--ink2);text-anchor:middle}
+svg .rl{font-size:13px;font-weight:600;fill:var(--ink2)}
+svg .dots{fill:var(--ink2)}
+svg .op{fill:var(--blue)}
+svg .ad{fill:var(--red)}
+svg .arr{fill:none;stroke:var(--blue);stroke-width:1.8}
+svg .arr.r{stroke:var(--red);stroke-width:1.5}
+svg .mk{fill:var(--blue)}
+svg .mk.r{fill:var(--red)}
+svg .pcp{fill:var(--red);font-size:11px;font-weight:600;text-anchor:end}
+.bits{display:flex;gap:2px;max-width:100%}
+.bit{flex:1 1 0;min-width:0;max-width:34px;height:34px;display:flex;align-items:center;justify-content:center;font:600 14px var(--f-mono);border:1.5px solid var(--ink2);border-radius:4px;background:var(--surface)}
+.bit.out{background:var(--red-soft);color:var(--red);border-color:var(--red);text-decoration:line-through}
+.bit.ins{background:var(--ok-soft);color:var(--ok);border-color:var(--ok)}
+.bit.rot{background:var(--blue-soft);color:var(--blue);border-color:var(--blue)}
+.shcard{gap:8px}
+.shcap{font-size:13px;color:var(--ink2)}
+.vals{font:500 13px var(--f-mono);color:var(--ink2)}
+.eqrow{display:flex;flex-wrap:wrap;gap:8px}
+.eq{font:600 13px var(--f-mono);padding:3px 10px;border-radius:999px}
+.eq.y{background:var(--ok-soft);color:var(--ok)}.eq.n{background:var(--red-soft);color:var(--red)}
+
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.slot{display:grid;grid-template-columns:34px 1fr 54px;gap:8px;align-items:center;margin-bottom:4px}
+.slot i{font:500 12px var(--f-mono);color:var(--ink2);font-style:normal;text-align:right}
+.slot div{height:34px;border:1.5px solid var(--ink);border-radius:4px;background:var(--surface);display:flex;align-items:center;justify-content:center;font:600 16px var(--f-mono)}
+.slot div.full{background:var(--blue-soft)}
+.slot em{font:600 12px var(--f-mono);color:var(--red);font-style:normal}
+.list{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:4px}
+
+.qbar{height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.qbar i{display:block;height:100%;background:var(--blue);transition:width .25s}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{text-align:left;font:500 15px var(--f-body);padding:11px 14px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);border-radius:8px;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--ink)}
+.opt.good{border-color:var(--ok);background:var(--ok-soft);color:var(--ink)}
+.opt.bad{border-color:var(--red);background:var(--red-soft);color:var(--ink)}
+.opt:disabled{cursor:default}
+.qtext{font:600 18px/1.55 var(--f-display)}
+.score{font:700 clamp(40px,10vw,64px) var(--f-display)}
+footer .wrap{padding-block:0 40px;color:var(--ink2);font-size:13px}
+@media (max-width:520px){ .setup-row{grid-template-columns:76px 1fr} }
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">Computer Platform Technology · Chapter 4</div>
+    <h1>ติวสอบ Instruction Set Architecture</h1>
+    <div class="meta">
+      <span class="tag">30/10/2569</span><span class="tag">ST405</span><span class="tag">14:40–16:40</span>
+      <span class="jam">จำ!! ลองกดเล่นทุกแท็บ</span>
+    </div>
+  </div>
+</header>
+
+<nav aria-label="หัวข้อ">
+  <div class="wrap">
+    <a href="#q1" data-v="q1">ข้อ 1 Infix→Postfix</a>
+    <a href="#q2" data-v="q2">ข้อ 2 Instruction Cycle</a>
+    <a href="#q3" data-v="q3">ข้อ 3 Shifter</a>
+    <a href="#addr" data-v="addr">0–3 Address</a>
+    <a href="#misc" data-v="misc">เก็บตก</a>
+    <a href="#quiz" data-v="quiz">ควิซ</a>
+  </div>
+</nav>
+
+<main>
+<div class="wrap">
+
+<!-- ========== ข้อ 1 ========== -->
+<section id="sec-q1" class="view" hidden>
+  <h2><span class="qno">ข้อ 1</span>แปลง Infix เป็น Postfix</h2>
+  <p class="lead">ตารางเหมือนในโน้ต: Input เรียงจากบนลงล่าง, Output เก็บตัวแปร, OPST เก็บเครื่องหมายและวงเล็บ. ส่วน “Y =” ข้างหน้าไม่ต้องนับ.</p>
+
+  <div class="card">
+    <label for="infix">นิพจน์ Infix</label>
+    <input id="infix" type="text" value="Y=(A-B)/(C+D*E)" spellcheck="false" autocomplete="off" autocapitalize="characters">
+    <div class="row" id="infix-ex"></div>
+    <div id="infix-err" class="err" hidden></div>
+  </div>
+
+  <div class="card" id="infix-out">
+    <div class="row">
+      <button class="btn" id="ix-prev">◀ ย้อน</button>
+      <button class="btn pri" id="ix-next">ถัดไป ▶</button>
+      <button class="btn" id="ix-all">แสดงทั้งหมด</button>
+      <button class="btn" id="ix-reset">เริ่มทีละขั้น</button>
+      <span class="muted mono" id="ix-count"></span>
+    </div>
+    <div class="scroll">
+      <table>
+        <thead><tr><th style="width:22%">Input</th><th style="width:34%">Output</th><th>OPST (ซ้าย=ล่าง, ขวา=บน)</th></tr></thead>
+        <tbody id="ix-body"></tbody>
+      </table>
+    </div>
+    <div>Postfix = <span class="result" id="ix-result"></span></div>
+  </div>
+
+  <div class="card rules">
+    <h3><span class="jam">จำ!!</span> กฎใน OPST</h3>
+    <ol>
+      <li><b>+</b> กับ <b>−</b> ศักดิ์เท่ากัน</li>
+      <li><b>×</b> กับ <b>÷</b> ศักดิ์เท่ากัน และมากกว่า + −</li>
+      <li>ใน OPST มี + (หรือ −) อยู่ก่อน แล้วจะใส่ × หรือ ÷ → <b>ไม่ต้อง pop</b> ใส่ต่อได้เลย</li>
+      <li>ใน OPST มี × (หรือ ÷) อยู่ก่อน แล้วจะใส่ + หรือ − → <b>pop</b> × ÷ ออกไป Output ก่อน</li>
+      <li>ศักดิ์เท่ากัน (+ กับ −, × กับ ÷) ตัวเดิมอยู่ก่อนแล้วจะใส่ตัวใหม่ → <b>pop ตัวเดิม</b> ออกก่อนแล้วค่อยใส่</li>
+      <li><b>(</b> ลง OPST เสมอ · เจอ <b>)</b> ให้ pop ออกไป Output จนเจอ ( แล้วทิ้งวงเล็บคู่นั้น</li>
+      <li>Input หมด → pop ที่เหลือใน OPST ออกไป Output ทั้งหมด</li>
+    </ol>
+    <p>สรุปสั้น: <b>ตัวใหม่ ≤ ตัวบนสุดของ OPST → pop ตัวบนออก</b> วนไปจนไม่ใช่ หรือเจอ ( แล้วค่อยใส่ตัวใหม่</p>
+    <div class="scroll prec">
+      <table>
+        <thead><tr><th>เครื่องหมาย</th><th>ใน Stack</th><th>ที่ Input</th></tr></thead>
+        <tbody class="mono">
+          <tr><td>^</td><td>3</td><td>4</td></tr>
+          <tr><td>* /</td><td>2</td><td>2</td></tr>
+          <tr><td>+ −</td><td>1</td><td>1</td></tr>
+          <tr><td>(</td><td>0</td><td>4</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="muted">ตาราง Precedence จากสไลด์ (ตาราง 4.1)</p>
+  </div>
+
+  <div class="card">
+    <h3>ฝึกทำเอง</h3>
+    <p>แปลงนิพจน์นี้เป็น Postfix แล้วพิมพ์คำตอบ (ไม่ต้องเว้นวรรค)</p>
+    <div class="result" id="pr-expr"></div>
+    <input id="pr-in" type="text" placeholder="เช่น AB+C*" spellcheck="false" autocomplete="off" autocapitalize="characters">
+    <div class="row">
+      <button class="btn pri" id="pr-check">ตรวจ</button>
+      <button class="btn" id="pr-new">โจทย์ใหม่</button>
+      <button class="btn" id="pr-show" hidden>ดูขั้นตอนในตารางบน</button>
+      <span class="muted mono" id="pr-score"></span>
+    </div>
+    <div id="pr-fb" hidden></div>
+  </div>
+</section>
+
+<!-- ========== ข้อ 2 ========== -->
+<section id="sec-q2" class="view" hidden>
+  <h2><span class="qno">ข้อ 2</span>Basic Instruction Cycle</h2>
+  <p class="lead">วิธีทำแบบแผงต่อเนื่อง อ่านจากซ้ายไปขวา แล้วบนลงล่าง. ทุกคำสั่งใช้ 2 แผง: Fetch ดึงคำสั่งเข้า IR แล้ว Decode + Execute พร้อม PC = PC+1. ช่องสีเหลืองคือค่าที่เพิ่งเปลี่ยน ลูกศรสีน้ำเงินคือทิศที่ข้อมูลไป.</p>
+
+  <div class="card">
+    <h3>โจทย์</h3>
+    <div class="row">
+      <button class="chip" id="pre1">Assignment (401, 901)</button>
+      <button class="chip" id="pre2">สไลด์ (300, 940)</button>
+      <button class="chip" id="pre3">ตามโน้ต (100, 301)</button>
+    </div>
+    <div class="setup-top"><label for="pc0">PC เริ่มที่</label><input id="pc0" class="sm" type="text" maxlength="3" value="401"></div>
+    <div class="lbl">หน่วยความจำ (Address 3 หลัก, ค่า 4 หลัก ฐาน 16, เว้นค่าว่างไว้ = ช่องว่าง)</div>
+    <div class="setup-grid" id="setup-rows"></div>
+    <div class="lbl">LOAD และ STORE ย้ายข้อมูลอย่างไร</div>
+    <div class="row">
+      <button class="chip" id="mode-copy" aria-pressed="true">ตามสไลด์: คัดลอก</button>
+      <button class="chip" id="mode-move" aria-pressed="false">ตามเฉลย Assignment: ย้าย (ต้นทางว่าง)</button>
+    </div>
+    <div id="sim-err" class="err" hidden></div>
+    <button class="btn pri" id="sim-apply" style="align-self:flex-start">ทำวิธีทำ</button>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <button class="btn" id="cy-prev">◀ ย้อน</button>
+      <button class="btn pri" id="cy-next">ถัดไป ▶</button>
+      <button class="btn" id="cy-all">แสดงทั้งหมด</button>
+      <button class="btn" id="cy-reset">เริ่มทีละขั้น</button>
+      <span class="muted mono" id="cy-count"></span>
+    </div>
+    <div class="panels" id="cy-panels"></div>
+    <div class="hint" id="cy-stop" hidden></div>
+    <div id="cy-sum"></div>
+  </div>
+
+  <div class="card rules">
+    <h3><span class="jam">จำ!!</span> ขั้นตอนของ 1 คำสั่ง</h3>
+    <ol>
+      <li><b>Fetch:</b> ดูตำแหน่งที่ PC ชี้ แล้วดึงคำสั่งตำแหน่งนั้นมาไว้ที่ IR (ทับตัวเดิม)</li>
+      <li><b>Decode:</b> ดู Opcode (เลขหลักแรกของคำสั่ง) และ Address (เลข 3 หลักหลัง)</li>
+      <li><b>Execute:</b> ทำตาม Opcode แล้ว <b>PC = PC + 1</b></li>
+    </ol>
+    <div class="scroll prec">
+      <table>
+        <thead><tr><th>Opcode</th><th>ฐาน 2</th><th>ความหมาย</th></tr></thead>
+        <tbody class="mono">
+          <tr><td>1</td><td>0001</td><td style="font-family:var(--f-body)">Load AC from Memory: เอาข้อมูลที่ Address มาไว้ที่ AC</td></tr>
+          <tr><td>2</td><td>0010</td><td style="font-family:var(--f-body)">Store AC to Memory: เอาค่าใน AC ไปเก็บที่ Address</td></tr>
+          <tr><td>5</td><td>0101</td><td style="font-family:var(--f-body)">Add AC from Memory: AC + ข้อมูลที่ Address แล้วเก็บที่ AC</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>คำสั่งยาว 16 บิต: Opcode 4 บิต (บิต 0–3) + Address 12 บิต (บิต 4–15). <b>ค่าทุกช่องเป็นเลขฐาน 16 บวกกันด้วยฐาน 16!!</b> ตอน Add ข้อมูลใน Memory ไม่หาย</p>
+  </div>
+</section>
+
+<!-- ========== ข้อ 3 ========== -->
+<section id="sec-q3" class="view" hidden>
+  <h2><span class="qno">ข้อ 3</span>Shifter</h2>
+  <p class="lead">ใส่เลขฐาน 2 แล้วดูผลของ SHL, SHR, ROL, ROR เทียบกันได้เลย. สีแดง = บิตที่ถูกตัดทิ้ง, สีเขียว = บิตที่ใส่ใหม่, สีน้ำเงิน = บิตที่หมุนวน.</p>
+  <div class="card">
+    <div class="grid2">
+      <div><label for="sh-bits">เลขฐาน 2 (2–16 บิต)</label><input id="sh-bits" type="text" value="10110011" inputmode="numeric" maxlength="16" autocomplete="off"></div>
+      <div><label for="sh-n">เลื่อน/หมุนกี่บิต</label><input id="sh-n" type="number" min="1" max="16" value="1"></div>
+    </div>
+    <div class="row" id="sh-ex"></div>
+    <div id="sh-err" class="err" hidden></div>
+  </div>
+  <div class="grid2" id="sh-cards"></div>
+  <div class="card">
+    <h3>เทียบกัน</h3>
+    <div class="eqrow" id="sh-eq"></div>
+    <p class="pen" style="font-size:15px">โน้ต: อาจเหมือนกันหรือไม่เหมือนกันก็ได้ ขึ้นกับบิตที่ถูกตัด อย่าฟันธงว่าเหมือนกัน</p>
+    <ul class="list">
+      <li><b>SHL</b> เลื่อนซ้าย: ตัดตัวซ้ายสุดทิ้ง แล้วใส่ 0 ทางขวา</li>
+      <li><b>SHR</b> เลื่อนขวา: ตัดตัวขวาสุดทิ้ง แล้วใส่ 0 ทางซ้าย</li>
+      <li><b>ROL</b> หมุนซ้าย: ตัวซ้ายสุดไปต่อทางขวา (ไม่มีบิตหาย)</li>
+      <li><b>ROR</b> หมุนขวา: ตัวขวาสุดไปต่อทางซ้าย (ไม่มีบิตหาย)</li>
+      <li><b>Arithmetic shift right</b> (ในสไลด์): เหมือน SHR แต่เติมบิตซ้ายสุด (เครื่องหมาย) แทน 0</li>
+      <li>รูป 4.2 ในสไลด์แสดง Rotate Left แบบผ่าน Carry (C): บิตซ้ายสุดเข้า C และ C เข้าทางขวา. ถ้าโจทย์ให้ Carry มาให้ทำตามนั้น</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ========== Address ========== -->
+<section id="sec-addr" class="view" hidden>
+  <h2>คำสั่ง 0, 1, 2, 3 Address</h2>
+  <p class="lead">โจทย์เดียวกันจากสไลด์: <span class="mono">Y = (A − B) / (C + D * E)</span>. เลือกชนิดเพื่อดูโปรแกรมและความหมายทีละบรรทัด.</p>
+  <div class="card">
+    <div class="seg" id="ad-seg">
+      <button class="chip" data-k="0" aria-pressed="true">0 Address</button>
+      <button class="chip" data-k="1" aria-pressed="false">1 Address</button>
+      <button class="chip" data-k="2" aria-pressed="false">2 Address</button>
+      <button class="chip" data-k="3" aria-pressed="false">3 Address</button>
+    </div>
+    <p id="ad-desc"></p>
+    <div class="scroll"><table><thead id="ad-head"></thead><tbody id="ad-body"></tbody></table></div>
+  </div>
+  <div class="card">
+    <h3>เทียบ 4 ชนิด</h3>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>ชนิด</th><th>ที่เก็บข้อมูล</th><th>จำนวนคำสั่ง</th><th>หมายเหตุ</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">0</td><td>Stack (PUSH / POP)</td><td class="mono">10</td><td>ลำดับตรงกับ Postfix</td></tr>
+          <tr><td class="mono">1</td><td>Accumulator</td><td class="mono">8</td><td>เช่น Acc = Acc + X</td></tr>
+          <tr><td class="mono">2</td><td>Address หนึ่งเป็นทั้ง Operand และ Result</td><td class="mono">6</td><td>เช่น X = X + Y (ใช้กันทั่วไป)</td></tr>
+          <tr><td class="mono">3</td><td>2 Operand + 1 Result</td><td class="mono">4</td><td>ไม่นิยม เพราะใช้ Address มากเกินไป</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="muted">Address น้อย → CPU ทำงานง่าย แต่ต้องใช้คำสั่งมากขึ้น. Address มาก → เขียนโปรแกรมง่าย แต่อ้างหน่วยความจำมากและ CPU ซับซ้อน.</p>
+  </div>
+  <div class="card">
+    <h3>แปลงนิพจน์ของคุณเป็นโค้ด 0 Address</h3>
+    <input id="z-in" type="text" value="Y=(A-B)/(C+D*E)" spellcheck="false" autocomplete="off" autocapitalize="characters" aria-label="นิพจน์ Infix">
+    <div id="z-err" class="err" hidden></div>
+    <div id="z-out"></div>
+  </div>
+</section>
+
+<!-- ========== เก็บตก ========== -->
+<section id="sec-misc" class="view" hidden>
+  <h2>เก็บตก</h2>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>ข้อมูลในคำสั่ง (Instruction Contents)</h3>
+      <ul class="list">
+        <li><b>Op Code</b> บอกว่าทำอะไร (Binary, ฟิลด์แรก)</li>
+        <li><b>Source operand reference</b> ที่เก็บข้อมูลที่จะนำเข้ามาทำงาน</li>
+        <li><b>Result reference</b> ที่เก็บผลลัพธ์</li>
+        <li><b>Next instruction reference</b> ตำแหน่งคำสั่งถัดไป (ส่วนใหญ่ไม่ระบุในคำสั่ง)</li>
+      </ul>
+      <p class="muted">ตัวอย่างฟอร์แมต 16 บิต: Op Code 4 · Operand 6 · Operand 6</p>
+    </div>
+    <div class="card">
+      <h3>ชนิดของคำสั่ง 6 กลุ่ม</h3>
+      <ul class="list">
+        <li><b>Arithmetic</b> Add Subtract Multiply Divide, ตั้ง Flag</li>
+        <li><b>Logic</b> AND OR NOT XOR, Shift, Rotate</li>
+        <li><b>Data movement</b> MOVE, PUSH-POP, LOAD-STORE</li>
+        <li><b>I/O</b> Control, Test, Read (IN), Write (OUT)</li>
+        <li><b>Control</b> Branch, Skip, Subroutine call</li>
+      </ul>
+      <p><b>Flag:</b> Carry · Borrow · Overflow · Underflow · Zero · Negative</p>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>Stack (LIFO) ลองกด</h3>
+      <p class="muted">ขนาด 5 ช่อง เริ่มต้นเหมือนรูป 4.4 ในสไลด์: 5, 9, 8 และ SP = 3</p>
+      <div id="st-view"></div>
+      <div class="row">
+        <input id="st-val" class="sm" type="number" value="18" style="width:90px" aria-label="ค่าที่จะ Push">
+        <button class="btn pri" id="st-push">Push</button>
+        <button class="btn" id="st-pop">POP</button>
+        <button class="btn" id="st-reset">รีเซ็ต</button>
+      </div>
+      <div id="st-msg" class="hint"></div>
+      <p class="muted">Push: SP + 1 แล้วเก็บค่า · POP: X = ST(SP) แล้ว SP − 1 · ล้นคือ Stack Overflow, ว่างแล้ว POP คือ Stack Underflow</p>
+    </div>
+
+    <div class="card">
+      <h3>Big / Little Endian</h3>
+      <div class="grid2">
+        <div><label for="en-hex">ค่าฐาน 16 (ไม่เกิน 4 ไบต์)</label><input id="en-hex" type="text" value="A02B" maxlength="8" autocomplete="off" autocapitalize="characters"></div>
+        <div><label for="en-addr">Address เริ่มต้น</label><input id="en-addr" type="number" value="184"></div>
+      </div>
+      <div id="en-err" class="err" hidden></div>
+      <div class="grid2" id="en-out"></div>
+      <p class="muted">Big Endian เก็บไบต์หลักมาก (MSD) ไว้ Address ต่ำก่อน, Little Endian เก็บหลักน้อย (LSD) ไว้ Address ต่ำก่อน. Motorola = Big, Intel = Little. ถ่ายโอนข้ามตระกูลต้องแปลงข้อมูลก่อน.</p>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>Control Operation</h3>
+      <ul class="list">
+        <li><b>Branch / Jump</b> กระโดดไป Address ที่กำหนด ส่วนมากมีเงื่อนไข: BRP (บวก), BRN (ลบ), BRZ (ศูนย์), BRO (Overflow), BRE R1,R2,X (R1 = R2)</li>
+        <li><b>Skip</b> ข้าม 1 คำสั่ง ไม่ต้องใช้ Address ปลายทาง เช่น <span class="mono">ISZ R1</span> = เพิ่มค่า R1 แล้วข้ามถ้าเป็น 0 (ใช้ทำ loop)</li>
+        <li><b>Subroutine call</b> CALL ไปโปรแกรมย่อย จบด้วย Return. CPU เก็บตำแหน่งกลับไว้ใน <b>Stack</b> จึงเรียกซ้อนกัน (Nested) ได้</li>
+        <li>เหตุผลที่ต้องมี: ทำ loop, ตัดสินใจตามเงื่อนไข, แบ่งโปรแกรมใหญ่เป็นโมดูล และประหยัดเนื้อที่หน่วยความจำ</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>I/O Instruction</h3>
+      <ul class="list">
+        <li><b>Control</b> สั่งอุปกรณ์ให้ทำงาน เช่น เทปถอยหลัง</li>
+        <li><b>Test</b> ตรวจสถานะ I/O Module และอุปกรณ์ (Power On? เสร็จหรือขัดข้อง?)</li>
+        <li><b>Read / IN</b> I/O Module รับข้อมูลจากอุปกรณ์มาพักใน Data register แล้ว CPU ขอให้วางบน Data Bus เพื่อรับเข้า CPU</li>
+        <li><b>Write / OUT</b> CPU ส่งข้อมูลผ่าน Data Bus ไปพักใน Data register ของ I/O Module เมื่ออุปกรณ์พร้อมจึงรับไป</li>
+      </ul>
+      <h3 style="margin-top:6px">Data movement</h3>
+      <p>MOVE String ต้องบอก Source Address, ความยาว L และ Destination Address</p>
+    </div>
+  </div>
+</section>
+
+<!-- ========== ควิซ ========== -->
+<section id="sec-quiz" class="view" hidden>
+  <h2>ควิซทบทวน</h2>
+  <div class="card" id="quiz-box"></div>
+</section>
+
+</div>
+</main>
+
+<footer><div class="wrap">สรุปจากโน้ตลายมือและสไลด์ Chapter 4 (Somjai J.) ตรวจกับต้นฉบับอีกครั้งก่อนสอบ</div></footer>
+
+<script>
+(function(){
+'use strict';
+var $=function(s,r){return (r||document).querySelector(s)};
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+var esc=function(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+var show=function(el,on){el.hidden=!on};
+
+/* ---------- routing ---------- */
+var VIEWS=['q1','q2','q3','addr','misc','quiz'];
+function route(){
+  var h=(location.hash||'').slice(1);
+  if(VIEWS.indexOf(h)<0)h='q1';
+  VIEWS.forEach(function(v){$('#sec-'+v).hidden=(v!==h)});
+  $$('nav a').forEach(function(a){
+    if(a.getAttribute('data-v')===h){a.setAttribute('aria-current','page');try{a.scrollIntoView({inline:'center',block:'nearest'})}catch(e){}}
+    else a.removeAttribute('aria-current');
+  });
+  var hh=$('header').offsetHeight; if(window.scrollY>hh)window.scrollTo(0,hh);
+}
+window.addEventListener('hashchange',route);
+
+/* ---------- ข้อ 1 : Infix -> Postfix ---------- */
+var PI={'^':4,'*':2,'/':2,'+':1,'-':1,'(':4};
+var PS={'^':3,'*':2,'/':2,'+':1,'-':1,'(':0};
+var isOperand=function(t){return /^[A-Za-z0-9_.]+$/.test(t)};
+var isOp=function(t){return t.length===1&&'+-*/^'.indexOf(t)>=0};
+
+function tokenize(src){
+  var s=src.trim(), target=null, eq=s.indexOf('=');
+  if(eq>=0){target=s.slice(0,eq).trim()||null;s=s.slice(eq+1)}
+  s=s.replace(/×/g,'*').replace(/÷/g,'/').replace(/\s+/g,'');
+  if(!s)return {error:'ใส่นิพจน์ก่อน เช่น A+B*C'};
+  var toks=[],cur='',i,ch;
+  for(i=0;i<s.length;i++){
+    ch=s[i];
+    if(/[A-Za-z0-9_.]/.test(ch)){cur+=ch;continue}
+    if(cur){toks.push(cur);cur=''}
+    if('+-*/^()'.indexOf(ch)>=0)toks.push(ch);
+    else return {error:'ใช้อักขระ "'+ch+'" ไม่ได้ (รองรับตัวอักษร ตัวเลข + − * / ^ และวงเล็บ)'};
+  }
+  if(cur)toks.push(cur);
+  return {toks:toks,target:target};
+}
+
+function convert(toks){
+  var rows=[],out=[],st=[],expectOperand=true,i,t,popped,top;
+  function push(input,note){rows.push({input:input,out:out.join(''),st:st.slice(),note:note})}
+  for(i=0;i<toks.length;i++){
+    t=toks[i];
+    if(isOperand(t)){
+      if(!expectOperand)return {error:'ตรงตำแหน่ง "'+t+'" ต้องเป็นเครื่องหมาย (ตัวแปรสองตัวติดกัน)'};
+      out.push(t);expectOperand=false;
+      push(t,t+' เป็นตัวแปร → ใส่ Output');
+    }else if(t==='('){
+      if(!expectOperand)return {error:'ก่อนวงเล็บเปิดต้องมีเครื่องหมาย'};
+      st.push('(');push(t,'( ลง OPST เสมอ');
+    }else if(t===')'){
+      if(expectOperand)return {error:'ก่อนวงเล็บปิดต้องเป็นตัวแปร'};
+      popped=[];
+      while(st.length&&st[st.length-1]!=='(')popped.push(st.pop());
+      if(!st.length)return {error:'วงเล็บปิดเกินจำนวน'};
+      st.pop();out=out.concat(popped);
+      push(t,popped.length?'pop '+popped.join(' ')+' ไป Output จนเจอ ( แล้วทิ้งวงเล็บคู่นั้น':'ไม่มีอะไรให้ pop ทิ้งวงเล็บคู่นั้น');
+    }else if(isOp(t)){
+      if(expectOperand)return {error:'เครื่องหมาย "'+t+'" ต้องมีตัวแปรอยู่ข้างหน้า'};
+      popped=[];top=st.length?st[st.length-1]:null;
+      while(st.length&&PI[t]<=PS[st[st.length-1]])popped.push(st.pop());
+      out=out.concat(popped);
+      var note;
+      if(!top)note='OPST ว่าง → ใส่ '+t;
+      else if(top==='(')note='ตัวบนสุดคือ ( → ใส่ '+t+' ต่อได้เลย';
+      else if(!popped.length)note=t+' ('+PI[t]+') มากกว่า '+top+' ('+PS[top]+') → ไม่ต้อง pop ใส่ '+t;
+      else note=t+' ('+PI[t]+') ≤ ตัวใน OPST → pop '+popped.join(' ')+' ไป Output แล้วใส่ '+t;
+      st.push(t);expectOperand=true;
+      push(t,note);
+    }
+  }
+  if(expectOperand)return {error:'นิพจน์ไม่ครบ ท้ายนิพจน์ต้องเป็นตัวแปรหรือวงเล็บปิด'};
+  popped=[];
+  while(st.length){top=st.pop();if(top==='(')return {error:'วงเล็บเปิดเกินจำนวน'};popped.push(top)}
+  out=out.concat(popped);
+  push('หมด',popped.length?'Input หมด → pop ที่เหลือ '+popped.join(' ')+' ไป Output':'Input หมด ไม่มีอะไรเหลือ');
+  return {rows:rows,out:out};
+}
+
+var IX={rows:[],n:0,out:[]};
+function stackHtml(st){
+  if(!st.length)return '<span class="muted">ว่าง</span>';
+  return st.map(function(x,i){return '<span class="sc'+(i===st.length-1?' top':'')+'">'+esc(x)+'</span>'}).join('');
+}
+function renderInfix(){
+  var n=IX.n,N=IX.rows.length,html='',i,r;
+  for(i=0;i<n;i++){
+    r=IX.rows[i];var cur=(i===n-1)?' cur':'';
+    html+='<tr class="main'+cur+'"><td class="mono">'+esc(r.input)+'</td><td class="mono">'+(r.out?esc(r.out):'<span class="muted">ว่าง</span>')+'</td><td>'+stackHtml(r.st)+'</td></tr>'+
+          '<tr class="why'+cur+'"><td colspan="3">'+esc(r.note)+'</td></tr>';
+  }
+  if(!n)html='<tr><td colspan="3" class="muted">กด “ถัดไป” เพื่อเริ่มทีละขั้น</td></tr>';
+  $('#ix-body').innerHTML=html;
+  $('#ix-count').textContent='ขั้นที่ '+n+' / '+N;
+  $('#ix-prev').disabled=n<=0;$('#ix-next').disabled=n>=N;
+  $('#ix-result').innerHTML=(n>=N)?'<b>'+esc(IX.out.join(''))+'</b>':'…';
+}
+function runInfix(keepAll){
+  var t=tokenize($('#infix').value),err=$('#infix-err');
+  var res=t.error?t:convert(t.toks);
+  if(res.error){err.textContent=res.error;show(err,true);show($('#infix-out'),false);return}
+  show(err,false);show($('#infix-out'),true);
+  IX.rows=res.rows;IX.out=res.out;IX.n=res.rows.length;
+  renderInfix();
+}
+(function(){
+  var ex=['(A-B)/(C+D*E)','A+B*C','A*B+C','A-B-C','A/B*C','(A+B)*(C-D)/E','A+B*C-D/E'];
+  $('#infix-ex').innerHTML=ex.map(function(e){return '<button class="chip" data-e="'+esc(e)+'">'+esc(e)+'</button>'}).join('');
+  $('#infix-ex').addEventListener('click',function(e){
+    var b=e.target.closest('.chip');if(!b)return;
+    $('#infix').value=b.getAttribute('data-e');runInfix();
+  });
+  $('#infix').addEventListener('input',function(){runInfix()});
+  $('#ix-prev').onclick=function(){IX.n=Math.max(0,IX.n-1);renderInfix()};
+  $('#ix-next').onclick=function(){IX.n=Math.min(IX.rows.length,IX.n+1);renderInfix()};
+  $('#ix-all').onclick=function(){IX.n=IX.rows.length;renderInfix()};
+  $('#ix-reset').onclick=function(){IX.n=0;renderInfix()};
+})();
+
+/* practice */
+var PR={ans:'',expr:'',right:0,total:0};
+function genExpr(){
+  var n=3+Math.floor(Math.random()*3),V='ABCDEFG',ops=[],i,cand=[],po=-1,s='';
+  for(i=0;i<n-1;i++)ops.push('+-*/'.charAt(Math.floor(Math.random()*4)));
+  ops.forEach(function(o,k){if(o==='+'||o==='-')cand.push(k)});
+  if(cand.length&&Math.random()<0.7)po=cand[Math.floor(Math.random()*cand.length)];
+  for(i=0;i<n;i++){
+    if(i===po)s+='(';
+    s+=V.charAt(i);
+    if(po>=0&&i===po+1)s+=')';
+    if(i<n-1)s+=ops[i];
+  }
+  return s;
+}
+function newPractice(){
+  var e=genExpr(),c=convert(tokenize(e).toks);
+  PR.expr=e;PR.ans=c.out.join('');
+  $('#pr-expr').textContent=e;$('#pr-in').value='';
+  show($('#pr-fb'),false);show($('#pr-show'),false);
+  $('#pr-score').textContent=PR.total?('ถูก '+PR.right+' / '+PR.total):'';
+}
+$('#pr-check').onclick=function(){
+  var u=$('#pr-in').value.replace(/\s+/g,'').toUpperCase(),fb=$('#pr-fb');
+  if(!u)return;
+  PR.total++;
+  if(u===PR.ans){PR.right++;fb.className='ok';fb.textContent='ถูกต้อง: '+PR.ans}
+  else{fb.className='err';fb.textContent='ยังไม่ถูก คำตอบคือ '+PR.ans}
+  show(fb,true);show($('#pr-show'),true);
+  $('#pr-score').textContent='ถูก '+PR.right+' / '+PR.total;
+};
+$('#pr-in').addEventListener('keydown',function(e){if(e.key==='Enter')$('#pr-check').click()});
+$('#pr-new').onclick=newPractice;
+$('#pr-show').onclick=function(){
+  $('#infix').value=PR.expr;runInfix();
+  $('#infix').scrollIntoView({block:'center'});
+};
+
+/* ---------- ข้อ 2 : Instruction cycle (วิธีทำแบบแผง) ---------- */
+var PRESETS={
+  1:{pc:'401',rows:[['401','1901'],['402','5902'],['403','2902'],['901','2013'],['902','0192'],['903','']]},
+  2:{pc:'300',rows:[['300','1940'],['301','5941'],['302','2941'],['940','0003'],['941','0002']]},
+  3:{pc:'100',rows:[['100','1301'],['101','5302'],['102','2303'],['301','00A5'],['302','001B'],['303','0000']]}
+};
+var SETUP_N=8,MOVE=false,CY={panels:[],cells:{},rows:[],stop:'',n:0};
+(function(){
+  var h='',i;
+  for(i=0;i<SETUP_N;i++)h+='<div class="setup-row"><input id="ma'+i+'" class="sm" type="text" maxlength="3" placeholder="Addr" aria-label="Address แถว '+(i+1)+'" style="width:100%"><input id="mv'+i+'" class="sm" type="text" maxlength="4" placeholder="ค่า 4 หลัก" aria-label="ค่าแถว '+(i+1)+'" style="width:100%"></div>';
+  $('#setup-rows').innerHTML=h;
+})();
+function loadPreset(k){
+  var p=PRESETS[k],i;
+  $('#pc0').value=p.pc;
+  for(i=0;i<SETUP_N;i++){
+    $('#ma'+i).value=p.rows[i]?p.rows[i][0]:'';
+    $('#mv'+i).value=p.rows[i]?p.rows[i][1]:'';
+  }
+  startSim();
+}
+function norm(s,n){s=s.trim();if(!new RegExp('^[0-9a-fA-F]{1,'+n+'}$').test(s))return null;return s.toUpperCase().padStart(n,'0')}
+function hx(x,n){return (x&((1<<(4*n))-1)).toString(16).toUpperCase().padStart(n,'0')}
+function dv(s){return parseInt(s,16)}
+function rd(t){return '<b class="rd">'+t+'</b>'}
+
+function buildTrace(pc0,mem0,move){
+  var mem={},cells={},k,panels=[],rows=[],stop='',pc=pc0,ac=null,ir=null,ins=0,guard=0;
+  for(k in mem0){mem[k]=mem0[k];cells[k]=1}
+  function snap(kind,ch,arrow,cap){
+    var m={},q;for(q in mem)m[q]=mem[q];
+    panels.push({n:panels.length+1,ins:ins,kind:kind,mem:m,pc:pc,ac:ac,ir:ir,ch:ch,arrow:arrow,cap:cap});
+  }
+  while(guard++<40){
+    var w=mem[pc];
+    if(!w){stop='จบโปรแกรม: ไม่มีคำสั่งที่ Address '+pc+' ให้ Fetch ต่อ';break}
+    ins++;
+    var op=w.charAt(0),ad=w.slice(1),known=('125'.indexOf(op)>=0);
+    ir=w;
+    if(known)cells[ad]=1;
+    snap('fetch',{ir:1},{t:'fetch',a:pc},'<span class="dim">(PC ชี้ตำแหน่ง '+pc+')</span><br>'+rd('Fetch:')+' คำสั่ง '+w+' มาไว้ที่รีจิสเตอร์ IR');
+    if(!known){stop='หยุด: Opcode '+op+' ไม่อยู่ในชุดที่เรียน (1 = LOAD, 2 = STORE, 5 = ADD)';break}
+    var dat=mem[ad]||'0000',oldpc=pc,ch={pc:1},arrow,cap,note,newpc=hx(dv(pc)+1,3);
+    if(op==='1'){
+      ac=dat;ch.ac=1;arrow={t:'load',a:ad};
+      if(move){mem[ad]=null;ch.mem=ad}
+      note='AC ← M['+ad+'] = '+dat;
+      cap=rd('Decode:')+' Opcode = 1 ให้ load ข้อมูลมาที่ AC จาก Address '+ad+'<br>'+rd('Execute:')+' AC ← '+dat+(move?' (ต้นทางว่างหลังย้าย)':'');
+    }else if(op==='5'){
+      var a0=ac||'0000',A=dv(a0),B=dv(dat),S=A+B,sum=hx(S,4);
+      ac=sum;ch.ac=1;arrow={t:'add',a:ad};
+      note=a0+' + '+dat+' = '+sum+' (ฐาน 16)';
+      cap=rd('Decode:')+' Opcode = 5 ให้ add ข้อมูลใน AC กับในหน่วยความจำ Address '+ad+' ผลลัพธ์เก็บที่ AC<br>'+rd('Execute:')+' '+a0+' + '+dat+' = '+sum+' (ฐาน 16)'+(S>0xFFFF?' เกิน 16 บิต ตัดทิ้ง':'')+'<br><span class="dim">ตรวจด้วยฐาน 10: '+A+' + '+B+' = '+S+'</span>';
+    }else{
+      var v=ac||'0000';
+      mem[ad]=v;ch.mem=ad;arrow={t:'store',a:ad};
+      if(move){ac=null;ch.ac=1}
+      note='M['+ad+'] ← AC = '+v;
+      cap=rd('Decode:')+' Opcode = 2 ให้ store เก็บค่าข้อมูลจาก AC ไปไว้ที่ Address '+ad+'<br>'+rd('Execute:')+' M['+ad+'] ← '+v+(move?' (AC ว่างหลังย้าย)':'');
+    }
+    pc=newpc;
+    cap+='<br><span class="dim">แล้ว PC = PC+1 = '+pc+'</span>';
+    snap('exec',ch,arrow,cap);
+    rows.push({ins:ins,pc:oldpc,ir:w,ac:ac||'',note:note});
+  }
+  if(!stop&&guard>=40)stop='หยุดที่ 40 คำสั่ง (กันโปรแกรมวนไม่จบ)';
+  return {panels:panels,cells:cells,rows:rows,stop:stop};
+}
+
+function panelSvg(p,cs,uid){
+  var RH=30,GAP=18,top=30,y=top,pos={},o='',prev=null,aid='ah'+uid,rid='rh'+uid;
+  o+='<defs><marker id="'+aid+'" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="mk" d="M0 0L10 5L0 10z"/></marker>'+
+     '<marker id="'+rid+'" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="mk r" d="M0 0L10 5L0 10z"/></marker></defs>';
+  o+='<text class="ttl" x="100" y="17">Memory</text><text class="ttl" x="255" y="17">CPU Registers</text>';
+  cs.forEach(function(a){
+    if(prev!==null&&dv(a)-dv(prev)>1){
+      o+='<text class="dots" x="82" y="'+(y+13)+'">:</text><text class="dots" x="118" y="'+(y+13)+'">:</text>';
+      y+=GAP;
+    }
+    var v=p.mem[a],chg=(p.ch.mem===a);
+    o+='<text class="addr" x="40" y="'+(y+20)+'">'+a+'</text>'+
+       '<rect class="cell'+(chg?' chg':'')+'" x="50" y="'+y+'" width="100" height="'+RH+'"/>'+
+       '<text x="100" y="'+(y+20)+'" text-anchor="middle">'+(v?v:'')+'</text>';
+    pos[a]=y+RH/2;y+=RH;prev=a;
+  });
+  var memBottom=y,py=top,ay=top+RH,iy=top+2*RH;
+  o+='<rect class="cell'+(p.ch.ac?' chg':'')+'" x="210" y="'+ay+'" width="90" height="'+RH+'"/>'+
+     '<text x="255" y="'+(ay+20)+'" text-anchor="middle">'+(p.ac?p.ac:'')+'</text><text class="rl" x="308" y="'+(ay+20)+'">AC</text>'+
+     '<rect class="cell'+(p.ch.ir?' chg':'')+'" x="210" y="'+iy+'" width="90" height="'+RH+'"/>'+
+     '<text x="255" y="'+(iy+20)+'" text-anchor="middle">'+(p.ir?'<tspan class="op">'+p.ir.charAt(0)+'</tspan><tspan class="ad">'+p.ir.slice(1)+'</tspan>':'')+'</text><text class="rl" x="308" y="'+(iy+20)+'">IR</text>'+
+     '<rect class="cell pcb'+(p.ch.pc?' chg':'')+'" x="210" y="'+py+'" width="90" height="'+RH+'"/>'+
+     '<text x="255" y="'+(py+20)+'" text-anchor="middle">'+p.pc+'</text><text class="rl" x="308" y="'+(py+20)+'">PC</text>';
+  var a=p.arrow;
+  if(a&&pos[a.a]!==undefined){
+    var my=pos[a.a],acC=ay+15,irC=iy+15,d;
+    if(a.t==='fetch')d='M150 '+my+' C 182 '+my+' 176 '+irC+' 208 '+irC;
+    else if(a.t==='store')d='M210 '+acC+' C 180 '+acC+' 182 '+my+' 153 '+my;
+    else d='M150 '+my+' C 182 '+my+' 176 '+acC+' 208 '+acC;
+    o+='<path class="arr" d="'+d+'" marker-end="url(#'+aid+')"/>';
+  }
+  if(p.kind==='exec'){
+    o+='<text class="pcp" x="358" y="17">PC=PC+1</text><path class="arr r" d="M338 22 C 334 36 320 42 304 43" marker-end="url(#'+rid+')"/>';
+  }
+  var H=Math.max(memBottom,top+3*RH)+8;
+  return '<svg viewBox="0 0 360 '+H+'" role="img" aria-label="แผงที่ '+p.n+': PC='+p.pc+', AC='+(p.ac||'ว่าง')+', IR='+(p.ir||'ว่าง')+'">'+o+'</svg>';
+}
+
+function renderPanels(){
+  var P=CY.panels,N=P.length,n=CY.n,h='',i,p;
+  var cs=Object.keys(CY.cells).sort(function(a,b){return dv(a)-dv(b)});
+  for(i=0;i<n;i++){
+    p=P[i];
+    h+='<div class="pnl"><div class="ph"><span class="pn">'+p.n+'</span><span class="ptag">'+(p.kind==='fetch'?'FETCH':'DECODE + EXECUTE')+' · คำสั่งที่ '+p.ins+'</span></div>'+
+       panelSvg(p,cs,p.n)+'<div class="pcap">'+p.cap+'</div></div>';
+  }
+  if(!N)h='<div class="pnl muted">ยังไม่มีแผง: PC ชี้ไปตำแหน่งที่ไม่มีคำสั่ง</div>';
+  else if(!n)h='<div class="pnl muted">กด “ถัดไป” เพื่อดูแผงแรก</div>';
+  $('#cy-panels').innerHTML=h;
+  $('#cy-count').textContent='แผงที่ '+n+' / '+N;
+  $('#cy-prev').disabled=n<=0;$('#cy-next').disabled=n>=N;
+  var st=$('#cy-stop');
+  if(n>=N&&CY.stop){st.textContent=CY.stop;show(st,true)}else show(st,false);
+  $('#cy-sum').innerHTML=(n>=N&&CY.rows.length)?
+    '<h3 style="margin-top:6px">สรุปเป็นตาราง</h3><div class="scroll"><table><thead><tr><th>#</th><th>PC</th><th>IR</th><th>AC หลังจบ</th><th>เกิดอะไรขึ้น</th></tr></thead><tbody>'+
+    CY.rows.map(function(r){return '<tr><td class="mono">'+r.ins+'</td><td class="mono">'+r.pc+'</td><td class="mono">'+r.ir+'</td><td class="mono">'+(r.ac||'ว่าง')+'</td><td>'+esc(r.note)+'</td></tr>'}).join('')+
+    '</tbody></table></div>':'';
+}
+function startSim(){
+  var err=$('#sim-err'),pc=norm($('#pc0').value,3),mem={},i,a,v,na,nv;
+  function bad(m){err.textContent=m;show(err,true)}
+  if(pc===null)return bad('PC ต้องเป็นเลขฐาน 16 ไม่เกิน 3 หลัก');
+  for(i=0;i<SETUP_N;i++){
+    a=$('#ma'+i).value.trim();v=$('#mv'+i).value.trim();
+    if(!a&&!v)continue;
+    if(!a)return bad('แถวที่ '+(i+1)+' มีค่าแต่ไม่มี Address');
+    na=norm(a,3);
+    if(na===null)return bad('แถวที่ '+(i+1)+': Address ต้องเป็นเลขฐาน 16 ไม่เกิน 3 หลัก');
+    if(v){nv=norm(v,4);if(nv===null)return bad('แถวที่ '+(i+1)+': ค่าต้องเป็นเลขฐาน 16 ไม่เกิน 4 หลัก');mem[na]=nv}
+    else mem[na]=null;
+  }
+  show(err,false);
+  var t=buildTrace(pc,mem,MOVE);
+  CY.panels=t.panels;CY.cells=t.cells;CY.rows=t.rows;CY.stop=t.stop;CY.n=t.panels.length;
+  renderPanels();
+}
+function syncMode(){
+  $('#mode-copy').setAttribute('aria-pressed',String(!MOVE));
+  $('#mode-move').setAttribute('aria-pressed',String(MOVE));
+}
+$('#sim-apply').onclick=startSim;
+$('#pre1').onclick=function(){loadPreset(1)};
+$('#pre2').onclick=function(){loadPreset(2)};
+$('#pre3').onclick=function(){loadPreset(3)};
+$('#mode-copy').onclick=function(){MOVE=false;syncMode();startSim()};
+$('#mode-move').onclick=function(){MOVE=true;syncMode();startSim()};
+$('#cy-prev').onclick=function(){CY.n=Math.max(0,CY.n-1);renderPanels()};
+$('#cy-next').onclick=function(){CY.n=Math.min(CY.panels.length,CY.n+1);renderPanels()};
+$('#cy-all').onclick=function(){CY.n=CY.panels.length;renderPanels()};
+$('#cy-reset').onclick=function(){CY.n=0;renderPanels()};
+
+/* ---------- ข้อ 3 : Shifter ---------- */
+function cells(str,ranges){
+  var h='',i,k,cls;
+  for(i=0;i<str.length;i++){
+    cls='';
+    for(k=0;k<ranges.length;k++)if(i>=ranges[k][0]&&i<ranges[k][1])cls=' '+ranges[k][2];
+    h+='<div class="bit'+cls+'">'+str.charAt(i)+'</div>';
+  }
+  return '<div class="bits">'+h+'</div>';
+}
+function shiftOps(b,n){
+  var L=b.length,k=Math.min(n,L),r=n%L,z='';
+  while(z.length<k)z+='0';
+  var sg='';while(sg.length<k)sg+=b.charAt(0);
+  return [
+    {id:'SHL',name:'เลื่อนซ้าย',after:b.slice(k)+z,bef:[[0,k,'out']],aft:[[L-k,L,'ins']],cap:'ตัด '+(k?b.slice(0,k):'-')+' ทางซ้ายทิ้ง · ใส่ 0 ทางขวา'},
+    {id:'SHR',name:'เลื่อนขวา',after:z+b.slice(0,L-k),bef:[[L-k,L,'out']],aft:[[0,k,'ins']],cap:'ตัด '+(k?b.slice(L-k):'-')+' ทางขวาทิ้ง · ใส่ 0 ทางซ้าย'},
+    {id:'ROL',name:'หมุนซ้าย',after:b.slice(r)+b.slice(0,r),bef:[[0,r,'rot']],aft:[[L-r,L,'rot']],cap:'เอา '+(r?b.slice(0,r):'-')+' จากซ้ายไปต่อทางขวา'},
+    {id:'ROR',name:'หมุนขวา',after:b.slice(L-r)+b.slice(0,L-r),bef:[[L-r,L,'rot']],aft:[[0,r,'rot']],cap:'เอา '+(r?b.slice(L-r):'-')+' จากขวาไปต่อทางซ้าย'},
+    {id:'ASR',name:'Arithmetic shift right',after:sg+b.slice(0,L-k),bef:[[L-k,L,'out']],aft:[[0,k,'ins']],cap:'ตัดทางขวาทิ้ง · เติมบิตเครื่องหมาย ('+b.charAt(0)+') ทางซ้าย'}
+  ];
+}
+function renderShift(){
+  var b=$('#sh-bits').value.trim(),n=parseInt($('#sh-n').value,10),err=$('#sh-err');
+  if(!/^[01]{2,16}$/.test(b)){err.textContent='ใส่เลขฐาน 2 ความยาว 2–16 บิต (ใช้ 0 กับ 1 เท่านั้น)';show(err,true);return}
+  if(!(n>=1)){err.textContent='จำนวนบิตต้องเป็นจำนวนเต็มตั้งแต่ 1';show(err,true);return}
+  show(err,false);
+  var ops=shiftOps(b,n),hexLen=Math.ceil(b.length/4),res={};
+  var val=function(s){return 'hex '+parseInt(s,2).toString(16).toUpperCase().padStart(hexLen,'0')+' · dec '+parseInt(s,2)};
+  $('#sh-cards').innerHTML=ops.map(function(o){
+    res[o.id]=o.after;
+    return '<div class="card shcard"><h3><span class="mono">'+o.id+'</span> '+esc(o.name)+'</h3>'+
+      '<div class="lbl">ก่อน</div>'+cells(b,o.bef)+'<div class="vals">'+val(b)+'</div>'+
+      '<div class="lbl">หลัง</div>'+cells(o.after,o.aft)+'<div class="vals">'+val(o.after)+'</div>'+
+      '<div class="shcap">'+esc(o.cap)+'</div></div>';
+  }).join('');
+  var pairs=[['SHL','ROL'],['SHR','ROR'],['SHL','SHR'],['SHR','ASR']];
+  $('#sh-eq').innerHTML=pairs.map(function(p){
+    var same=res[p[0]]===res[p[1]];
+    return '<span class="eq '+(same?'y':'n')+'">'+p[0]+(same?' = ':' ≠ ')+p[1]+'</span>';
+  }).join('');
+}
+(function(){
+  var ex=['10110011','00101101','11110000','10000001','01100110'];
+  $('#sh-ex').innerHTML=ex.map(function(e){return '<button class="chip" data-e="'+e+'">'+e+'</button>'}).join('');
+  $('#sh-ex').addEventListener('click',function(e){var b=e.target.closest('.chip');if(!b)return;$('#sh-bits').value=b.getAttribute('data-e');renderShift()});
+  $('#sh-bits').addEventListener('input',renderShift);
+  $('#sh-n').addEventListener('input',renderShift);
+})();
+
+/* ---------- 0-3 address ---------- */
+var AD={
+  1:{desc:'มี 1 Address ซ่อนอยู่ในคำสั่ง ปกติใช้รีจิสเตอร์ Accumulator เช่น Acc = Acc + X',rows:[['LOAD D','D → ACC'],['MUL E','ACC * E → ACC'],['ADD C','ACC + C → ACC'],['STORE Y','ACC → Y'],['LOAD A','A → ACC'],['SUB B','ACC − B → ACC'],['DIV Y','ACC / Y → ACC'],['STORE Y','ACC → Y']]},
+  2:{desc:'Address ใดหนึ่งเป็นได้ทั้ง Operand และ Result เช่น X = X + Y ใช้กันทั่วไป',rows:[['MOV Y,A','A → Y'],['SUB Y,B','Y − B → Y'],['MOV T,D','D → T'],['MUL T,E','T * E → T'],['ADD T,C','T + C → T'],['DIV Y,T','Y / T → Y']]},
+  3:{desc:'2 Address แรกเป็น Operand อีก 1 Address เป็นผลลัพธ์ ไม่นิยมเพราะใช้ Address มากเกินไป',rows:[['SUB Y,A,B','A − B → Y'],['MUL T,D,E','D * E → T'],['ADD T,T,C','T + C → T'],['DIV Y,Y,T','Y / T → Y']]}
+};
+var ZMN={'+':'ADD','-':'SUB','*':'MUL','/':'DIV','^':'POW'};
+function zeroAddr(src){
+  var t=tokenize(src);if(t.error)return t;
+  var c=convert(t.toks);if(c.error)return c;
+  var st=[],lines=[],maxd=0,i,tk,a,b,target=t.target||'Y';
+  for(i=0;i<c.out.length;i++){
+    tk=c.out[i];
+    if(isOperand(tk)){st.push(tk);lines.push({code:'PUSH '+tk,st:st.slice()})}
+    else{b=st.pop();a=st.pop();st.push('('+a+tk+b+')');lines.push({code:ZMN[tk],st:st.slice()})}
+    if(st.length>maxd)maxd=st.length;
+  }
+  lines.push({code:'POP '+target,st:[]});
+  return {lines:lines,post:c.out.join(''),maxd:maxd,target:target};
+}
+function renderZero(){
+  var r=zeroAddr($('#z-in').value),err=$('#z-err'),out=$('#z-out');
+  if(r.error){err.textContent=r.error;show(err,true);out.innerHTML='';return}
+  show(err,false);
+  out.innerHTML='<p>Postfix = <span class="mono"><b>'+esc(r.post)+'</b></span> · Stack สูงสุด '+r.maxd+' ช่อง · '+r.lines.length+' คำสั่ง</p>'+
+    '<div class="scroll"><table><thead><tr><th>Code</th><th>Stack หลังทำคำสั่ง (ซ้าย=ล่าง)</th></tr></thead><tbody>'+
+    r.lines.map(function(l){return '<tr><td class="mono">'+esc(l.code)+'</td><td class="mono">'+(l.st.length?esc(l.st.join('  ')):'<span class="muted">ว่าง</span>')+'</td></tr>'}).join('')+'</tbody></table></div>';
+}
+var adK=0;
+function renderAddr(){
+  $$('#ad-seg .chip').forEach(function(b){b.setAttribute('aria-pressed',String(+b.getAttribute('data-k')===adK))});
+  if(adK===0){
+    var r=zeroAddr('Y=(A-B)/(C+D*E)');
+    $('#ad-desc').textContent='ทุก Address ซ่อนอยู่ในคำสั่ง ใช้งาน Stack ด้วย PUSH และ POP. โปรแกรมอ่านตรงจาก Postfix '+r.post+': ตัวแปร = PUSH, เครื่องหมาย = ทำงานกับสองตัวบนสุดของ Stack';
+    $('#ad-head').innerHTML='<tr><th>Code</th><th>ผลที่ Stack</th></tr>';
+    $('#ad-body').innerHTML=r.lines.map(function(l){return '<tr><td class="mono">'+esc(l.code)+'</td><td class="mono">'+(l.st.length?esc(l.st.join('  ')):'ว่าง (ค่าไปอยู่ที่ Y)')+'</td></tr>'}).join('');
+  }else{
+    $('#ad-desc').textContent=AD[adK].desc;
+    $('#ad-head').innerHTML='<tr><th>Code</th><th>ความหมาย</th></tr>';
+    $('#ad-body').innerHTML=AD[adK].rows.map(function(l){return '<tr><td class="mono">'+esc(l[0])+'</td><td class="mono">'+esc(l[1])+'</td></tr>'}).join('');
+  }
+}
+$('#ad-seg').addEventListener('click',function(e){var b=e.target.closest('.chip');if(!b)return;adK=+b.getAttribute('data-k');renderAddr()});
+$('#z-in').addEventListener('input',renderZero);
+
+/* ---------- Stack sim ---------- */
+var STK={arr:[5,9,8],msg:'พร้อมใช้งาน'};
+function renderStack(){
+  var h='',p,sp=STK.arr.length;
+  for(p=5;p>=1;p--){
+    var v=STK.arr[p-1];
+    h+='<div class="slot"><i>'+p+'</i><div class="'+(v!==undefined?'full':'')+'">'+(v!==undefined?esc(v):'')+'</div><em>'+(p===sp?'← SP':'')+'</em></div>';
+  }
+  $('#st-view').innerHTML=h+'<div class="muted mono">SP = '+sp+'</div>';
+  $('#st-msg').textContent=STK.msg;
+}
+$('#st-push').onclick=function(){
+  var v=$('#st-val').value;
+  if(v===''){STK.msg='ใส่ค่าที่จะ Push ก่อน';renderStack();return}
+  if(STK.arr.length>=5){STK.msg='Stack Overflow: Stack เต็ม 5 ช่องแล้ว Push เพิ่มไม่ได้';renderStack();return}
+  STK.arr.push(+v);STK.msg='Push '+v+': SP เพิ่มเป็น '+STK.arr.length+' แล้วเก็บ '+v+' ที่ตำแหน่งนั้น';renderStack();
+};
+$('#st-pop').onclick=function(){
+  if(!STK.arr.length){STK.msg='Stack Underflow: Stack ว่างเปล่าแล้วยัง POP';renderStack();return}
+  var x=STK.arr.pop();STK.msg='POP: X = '+x+' แล้ว SP ลดเหลือ '+STK.arr.length;renderStack();
+};
+$('#st-reset').onclick=function(){STK.arr=[5,9,8];STK.msg='รีเซ็ตเป็น 5, 9, 8 (SP = 3)';renderStack()};
+
+/* ---------- Endian ---------- */
+function renderEndian(){
+  var hex=$('#en-hex').value.replace(/\s+/g,'').replace(/^0x/i,''),err=$('#en-err'),start=parseInt($('#en-addr').value,10),i;
+  if(!/^[0-9a-fA-F]{1,8}$/.test(hex)){err.textContent='ใส่เลขฐาน 16 ไม่เกิน 8 หลัก (4 ไบต์)';show(err,true);return}
+  if(isNaN(start)){err.textContent='ใส่ Address เริ่มต้นเป็นตัวเลข';show(err,true);return}
+  show(err,false);
+  if(hex.length%2)hex='0'+hex;
+  hex=hex.toUpperCase();
+  var bytes=[];for(i=0;i<hex.length;i+=2)bytes.push(hex.substr(i,2));
+  var little=bytes.slice().reverse();
+  function tbl(title,arr,sub){
+    return '<div><h3 style="font-size:16px">'+title+'</h3><p class="muted" style="font-size:13px">'+sub+'</p><div class="scroll"><table><thead><tr><th>Address</th><th>ค่า</th></tr></thead><tbody>'+
+      arr.map(function(b,k){return '<tr><td class="mono">'+(start+k)+'</td><td class="mono">'+b+'</td></tr>'}).join('')+'</tbody></table></div></div>';
+  }
+  $('#en-out').innerHTML=tbl('Big Endian',bytes,'MSD ไว้ Address ต่ำก่อน')+tbl('Little Endian',little,'LSD ไว้ Address ต่ำก่อน');
+}
+$('#en-hex').addEventListener('input',renderEndian);
+$('#en-addr').addEventListener('input',renderEndian);
+
+/* ---------- Quiz ---------- */
+var QS=[
+ {q:'ฟิลด์ใดในคำสั่งที่บอกว่าให้คอมพิวเตอร์ทำงานอะไร เช่น บวก หรือ ลบ?',o:['Op Code','Source operand reference','Result reference','Next instruction reference'],a:0,w:'Op Code อยู่ฟิลด์แรกของคำสั่ง ปกติเป็น Binary Code'},
+ {q:'ข้อมูลใดในคำสั่งที่ส่วนใหญ่ไม่กำหนดเปิดเผยไว้ในคำสั่ง?',o:['Next instruction reference','Op Code','Source operand reference','Result reference'],a:0,w:'ตำแหน่งคำสั่งถัดไปส่วนใหญ่ไม่ระบุในคำสั่ง'},
+ {q:'ผลลัพธ์มีเลขเกินหลักที่จะเก็บไว้ได้ ตรงกับ Flag ใด?',o:['Overflow','Carry','Zero','Negative'],a:0,w:'Overflow คือเลขเกินหลักที่เก็บได้ ส่วน Underflow คือเลขน้อยเกินไปที่จะเก็บได้'},
+ {q:'Stack ทำงานแบบใด?',o:['LIFO (เข้าหลังออกก่อน)','FIFO (เข้าก่อนออกก่อน)','สุ่มตำแหน่ง','วนเป็นวง'],a:0,w:'Stack เป็น Last In First Out'},
+ {q:'Stack ขนาด 5 ช่อง มี 5, 9, 8 อยู่ (SP = 3) เมื่อ Push 18 แล้ว?',o:['SP = 4 และ 18 อยู่ตำแหน่งที่ 4','SP = 3 และ 18 ทับ 8','SP = 5 และ 18 อยู่ตำแหน่งที่ 5','SP = 2 และ 18 อยู่ตำแหน่งที่ 2'],a:0,w:'Push: SP + 1 ก่อน แล้วเก็บค่าที่ตำแหน่งที่ SP ชี้'},
+ {q:'POP ข้อมูลจาก Stack ที่ว่างเปล่า จะเกิดอะไร?',o:['Stack Underflow','Stack Overflow','Carry','Branch fault'],a:0,w:'POP ตอนว่าง = Stack Underflow'},
+ {q:'Push ข้อมูลเกินกว่าที่ Stack จุได้ จะเกิดอะไร?',o:['Stack Overflow','Stack Underflow','Zero flag','Borrow'],a:0,w:'Push ตอนเต็ม = Stack Overflow'},
+ {q:'แปลง A+B*C เป็น Postfix',o:['ABC*+','AB+C*','AB*C+','ABC+*'],a:0,w:'* มากกว่า + จึงไม่ต้อง pop + ตอนใส่ * ตอนท้ายค่อย pop * แล้ว +'},
+ {q:'แปลง A*B+C เป็น Postfix',o:['AB*C+','ABC*+','AB+C*','A*BC+'],a:0,w:'ตอนจะใส่ + ใน OPST มี * อยู่ก่อน ต้อง pop * ออกไป Output ก่อน'},
+ {q:'แปลง A-B-C เป็น Postfix',o:['AB-C-','ABC--','AB-C+','A-BC-'],a:0,w:'− กับ − ศักดิ์เท่ากัน ตัวเดิมต้อง pop ออกก่อนใส่ตัวใหม่'},
+ {q:'แปลง A/B*C เป็น Postfix',o:['AB/C*','ABC*/','AB/C/','AB*C/'],a:0,w:'× กับ ÷ ศักดิ์เท่ากัน จึง pop ÷ ก่อนใส่ *'},
+ {q:'แปลง (A+B)*C เป็น Postfix',o:['AB+C*','ABC*+','AB+*C','A+BC*'],a:0,w:'วงเล็บทำให้ + ถูก pop ออกเมื่อเจอ ) ก่อนที่จะใส่ *'},
+ {q:'Precedence ของ ( เมื่ออยู่ใน Stack คือเท่าใด?',o:['0','1','2','4'],a:0,w:'( ใน Stack = 0 เพื่อไม่ให้ถูก pop โดยเครื่องหมายอื่น และที่ Input = 4 จึงลง Stack เสมอ'},
+ {q:'คำสั่งแบบ 1 Address ปกติใช้รีจิสเตอร์ใดเป็นตัวกลาง?',o:['Accumulator','Stack Pointer','Program Counter','Instruction Register'],a:0,w:'เช่น Acc = Acc + X'},
+ {q:'คำสั่งชนิดใดไม่นิยมใช้เพราะใช้ Address มากเกินไป?',o:['3 Address','0 Address','1 Address','2 Address'],a:0,w:'3 Address ใช้ 2 Operand + 1 Result'},
+ {q:'คำสั่ง 0 Address ทำงานโดยอาศัยอะไร?',o:['Stack','Accumulator','Cache','Flag register'],a:0,w:'ใช้ PUSH และ POP กับ Stack ในหน่วยความจำหลัก ลำดับตรงกับ Postfix'},
+ {q:'เก็บ A02B เริ่มที่ Address 184 แบบ Big Endian ตำแหน่ง 184 เก็บค่าใด?',o:['A0','2B','A02B','0A'],a:0,w:'Big Endian เก็บ MSD ไว้ Address ต่ำก่อน: 184 = A0, 185 = 2B'},
+ {q:'เก็บ A02B เริ่มที่ Address 184 แบบ Little Endian ตำแหน่ง 185 เก็บค่าใด?',o:['A0','2B','B2','02'],a:0,w:'Little Endian: 184 = 2B, 185 = A0'},
+ {q:'ตามสไลด์ ไมโครโปรเซสเซอร์ตระกูลใดเก็บแบบ Little Endian?',o:['Intel','Motorola','ทั้งสองตระกูล','ไม่มีตระกูลใด'],a:0,w:'Motorola เป็น Big Endian ส่วน Intel เป็น Little Endian'},
+ {q:'SHL 10110011 (เลื่อนซ้าย 1 บิต) ได้ผลใด?',o:['01100110','11011001','01100111','01011001'],a:0,w:'ตัด 1 ตัวซ้ายสุดทิ้ง แล้วใส่ 0 ทางขวา'},
+ {q:'SHR 10110011 (เลื่อนขวา 1 บิต) ได้ผลใด?',o:['01011001','11011001','01100110','11100110'],a:0,w:'ตัด 1 ตัวขวาสุดทิ้ง แล้วใส่ 0 ทางซ้าย (11011001 คือผลของ ROR)'},
+ {q:'ROL 10110011 (หมุนซ้าย 1 บิต) ได้ผลใด?',o:['01100111','01100110','11011001','01011001'],a:0,w:'ตัว 1 ซ้ายสุดไปต่อทางขวา ไม่มีบิตหาย'},
+ {q:'ข้อใดคือความต่างของ SHL กับ ROL?',o:['SHL ใส่ 0 ทางขวา ส่วน ROL เอาบิตซ้ายสุดไปต่อทางขวา','เหมือนกันทุกกรณี','ROL ใส่ 0 ทางขวาเสมอ','SHL หมุนบิตทั้งแถว'],a:0,w:'ผลอาจเท่ากันถ้าบิตที่ถูกตัดเป็น 0 แต่ไม่ได้เท่ากันทุกกรณี'},
+ {q:'PC = 300, M[300] = 1940 (Opcode 1 = LOAD) ขั้น Execute ทำอะไร?',o:['AC ← M[940]','AC ← 940','M[940] ← AC','AC ← AC + M[940]'],a:0,w:'เลข 3 ตัวหลังคือ Address ของ Data'},
+ {q:'M[940] = 0003, M[941] = 0002 รันคำสั่ง 1940, 5941, 2941 จาก AC = 0000 ได้อะไร?',o:['AC = 0005 และ M[941] = 0005','AC = 0003 และ M[941] = 0003','AC = 0005 และ M[941] = 0002','AC = 0002 และ M[941] = 0005'],a:0,w:'LOAD → 0003, ADD 0002 → 0005, STORE เก็บ 0005 ลง M[941]'},
+ {q:'AC = 00A5 บวกกับ Data 001B (เลขฐาน 16) ได้เท่าใด?',o:['00C0','00C5','00BF','0100'],a:0,w:'A5 + 1B = 165 + 27 = 192 = C0 ในฐาน 16'},
+ {q:'คำสั่ง BRZ X ทำอะไร?',o:['Branch ไป X ถ้าผลลัพธ์เป็นศูนย์','Branch ไป X ถ้าผลลัพธ์เป็นลบ','Branch ไป X ถ้าเกิด Overflow','Branch ไป X ถ้าผลลัพธ์เป็นบวก'],a:0,w:'BRP = บวก, BRN = ลบ, BRZ = ศูนย์, BRO = Overflow'},
+ {q:'คำสั่ง ISZ R1 ทำอะไร?',o:['เพิ่มค่า R1 แล้วข้ามคำสั่งถัดไปถ้าเป็นศูนย์','ลดค่า R1 แล้วข้ามถ้าเป็นลบ','ล้างค่า R1 เป็นศูนย์','เปรียบเทียบ R1 กับศูนย์'],a:0,w:'Increment-and-Skip-if-Zero ใช้ทำ loop'},
+ {q:'CPU เก็บตำแหน่งกลับของ Subroutine ที่เรียกซ้อนกันด้วยโครงสร้างใด?',o:['Stack','Queue','Flag register','Accumulator'],a:0,w:'Return ต้องกลับตามลำดับย้อนหลัง จึงใช้ Stack'},
+ {q:'คำสั่ง Read หรือ IN ทำให้เกิดอะไร?',o:['I/O Module รับข้อมูลจากอุปกรณ์มาพักใน Data register','CPU ส่งข้อมูลไปพักใน I/O Module','ตรวจสอบว่าอุปกรณ์ Power On หรือไม่','สั่งให้เทปถอยหลัง'],a:0,w:'จากนั้น CPU ขอให้ I/O Module วางข้อมูลบน Data Bus เพื่อรับเข้า CPU'}
+];
+var QZ=null;
+function shuffle(a){var i,j,t;a=a.slice();for(i=a.length-1;i>0;i--){j=Math.floor(Math.random()*(i+1));t=a[i];a[i]=a[j];a[j]=t}return a}
+function startQuiz(ids){
+  QZ={ids:shuffle(ids||QS.map(function(_,i){return i})),i:0,right:0,wrong:[],answered:false};
+  renderQuiz();
+}
+function renderQuiz(){
+  var box=$('#quiz-box'),N=QZ.ids.length;
+  if(QZ.i>=N){
+    var pct=Math.round(100*QZ.right/N);
+    box.innerHTML='<div class="lbl">ผลควิซ</div><div class="score">'+QZ.right+' / '+N+'</div><p>'+pct+'%'+(QZ.wrong.length?' · ข้อที่ผิด '+QZ.wrong.length+' ข้อ':' · ถูกทุกข้อ')+'</p>'+
+      (QZ.wrong.length?'<ul class="list">'+QZ.wrong.map(function(id){var q=QS[id];return '<li><b>'+esc(q.q)+'</b><br><span class="muted">เฉลย: '+esc(q.o[q.a])+' — '+esc(q.w)+'</span></li>'}).join('')+'</ul>':'')+
+      '<div class="row"><button class="btn pri" id="qz-again">ทำใหม่ทั้งหมด</button>'+(QZ.wrong.length?'<button class="btn" id="qz-wrong">ทำเฉพาะข้อที่ผิด</button>':'')+'</div>';
+    $('#qz-again').onclick=function(){startQuiz()};
+    if(QZ.wrong.length)$('#qz-wrong').onclick=function(){startQuiz(QZ.wrong.slice())};
+    return;
+  }
+  var q=QS[QZ.ids[QZ.i]],order=shuffle([0,1,2,3]);
+  QZ.cur={order:order};QZ.answered=false;
+  box.innerHTML='<div class="row" style="justify-content:space-between"><span class="lbl">ข้อ '+(QZ.i+1)+' / '+N+'</span><span class="lbl">ถูก '+QZ.right+'</span></div>'+
+    '<div class="qbar"><i style="width:'+(100*QZ.i/N)+'%"></i></div>'+
+    '<div class="qtext">'+esc(q.q)+'</div>'+
+    '<div class="opts">'+order.map(function(oi,k){return '<button class="opt" data-o="'+oi+'">'+esc(q.o[oi])+'</button>'}).join('')+'</div>'+
+    '<div id="qz-fb" hidden></div><div class="row"><button class="btn pri" id="qz-next" hidden>ข้อต่อไป ▶</button></div>';
+  $$('.opt',box).forEach(function(b){
+    b.onclick=function(){
+      if(QZ.answered)return;QZ.answered=true;
+      var pick=+b.getAttribute('data-o'),good=(pick===q.a),fb=$('#qz-fb');
+      $$('.opt',box).forEach(function(x){
+        var xo=+x.getAttribute('data-o');x.disabled=true;
+        if(xo===q.a)x.classList.add('good');else if(x===b)x.classList.add('bad');
+      });
+      if(good)QZ.right++;else QZ.wrong.push(QZ.ids[QZ.i]);
+      fb.className=good?'ok':'err';fb.textContent=(good?'ถูกต้อง · ':'ยังไม่ถูก · ')+q.w;show(fb,true);
+      var nx=$('#qz-next');nx.textContent=(QZ.i+1>=N)?'ดูผล':'ข้อต่อไป ▶';show(nx,true);
+      nx.onclick=function(){QZ.i++;renderQuiz()};
+      nx.focus();
+    };
+  });
+}
+
+/* ---------- init ---------- */
+runInfix();
+newPractice();
+loadPreset(1);
+renderShift();
+renderAddr();
+renderZero();
+renderStack();
+renderEndian();
+startQuiz();
+route();
+})();
+</script>
+
+</body></html>
